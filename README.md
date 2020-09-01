@@ -1,6 +1,6 @@
 # trayectorias-laborales-client-php
 
-Api para consulta de trayectorias Laborales (Empleos, Cedulas y Listas).
+API para consulta de Trayectorias Laborales (Empleos, Cedulas y Listas).
 
 ## Requisitos
 
@@ -103,59 +103,67 @@ $this->signer = new \lae\Client\Interceptor\KeyHandler(
  
 ### Paso 4. Modificar URL y credenciales
 
- Modificar la URL y las credenciales de acceso a la petición en ***test/Api/ApiTest.php***, como se muestra en el siguiente fragmento de código:
+En el archivo **test/Api/ApiTest.php** se debe modificar la URL (**url_API**); el usuario (**basic_auth_username**) y contraseña (**basic_auth_password**) de autenticación de acceso básica; y la API KEY (**x_api_key**), como se muestra en el siguiente fragmento de código:
 
 ```php
 public function setUp()
 {
-    $password = getenv('KEY_PASSWORD');
-    $this->signer = new \lae\Client\Interceptor\KeyHandler(null, null, $password);
-
-    $events = new \lae\Client\Interceptor\MiddlewareEvents($this->signer);
-    $handler = handlerStack::create();
-    $handler->push($events->add_signature_header('x-signature'));   
-    $handler->push($events->verify_signature_header('x-signature'));
-    $client = new \GuzzleHttp\Client(['handler' => $handler]);
-
-    $config = new \lae\Client\Configuration();
-    $config->setHost('the_url');
-    
-    $this->apiInstance = new \lae\Client\Api\LoanAmountEstimatorApi($client, $config);
     $this->x_api_key = "your_api_key";
-    $this->username = "your_username";
-    $this->password = "your_password";
+    $this->basic_auth_username = "your-basic-auth-username";
+    $this->basic_auth_password = "your-basic-auth-password";
+    $this->url_API = "the_url";
+    //..code
+}  
+```
 
-}   
- ```
- 
 ### Paso 5. Capturar los datos de la petición
+
 
 Es importante contar con el setUp() que se encargará de firmar y verificar la petición.
 
 > **NOTA:** Los datos de la siguiente petición son solo representativos.
 
 ```php
-public function testGetLAEByFolioConsulta()
+public function testConsultarTrayectorias()
 {
-    $request = new \lae\Client\Model\PeticionFolioConsulta();
-    $segmento = new \lae\Client\Model\CatalogoSegmento();
+    $request = new Busqueda();
+    $persona = new PersonaConsulta();
+    $domicilio = new DomicilioConsulta();
+    $catalogoSexoPersona = new CatalogoSexoPersona();
 
-    $request->setFolioOtorgante("121212");
-    $request->setSegmento($segmento::PP);
-    $request->setFolioConsulta("387337601");
+    $persona->setPrimerNombre("Juan");
+    $persona->setApellidoPaterno("Pruebauno");
+    $persona->setApellidoMaterno("Pruebauno");
+    $persona->setFechaNacimiento("1986-12-01");
+    $persona->setSexo($catalogoSexoPersona::M);
     
+    $domicilio->setDireccion("TORNO 301 EL ROSARIO");
+    $domicilio->setColonia("PEDREGAL DE SANTO DOMINGO");
+    $domicilio->setCp("02100");
+    
+    $request->setClaveEmpresaConsulta("2007310044");
+    $request->setFolioConsultaEmpleador("2620100");
+    $request->setProductoRequerido(4);
+    $request->setPuestoSolicitado("Vendedor");
+    $request->setPersona($persona);
+    $request->setDomicilio($domicilio);  
+
     try {
-        $result = $this->apiInstance->getLAEByFolioConsulta($this->x_api_key, $this->username, $this->password, $request);
-        $this->assertTrue($result!==null);
-        if($result!==null){
-            print_r("getLAEByFolioConsulta");
+        $result = $this->apiInstance->consultarTrayectorias($this->x_api_key, $request);
+        print_r($result);
+        
+        if($this->apiInstance->getStatusCode() == 200){
             print_r($result);
         }
-    } catch (Exception $e) {
-        echo 'Exception when calling LAE->getLAEByFolioConsulta: ', $e->getMessage(), PHP_EOL;
+
+        $this->assertTrue($this->apiInstance->getStatusCode() == 200);
+    } catch (ApiException $e) {
+
+        if($e->getCode() !== 204){
+            echo ' code. Exception when calling ApiTest->consultarTrayectorias: ', $e->getResponseBody(), PHP_EOL;
+        }
     }
 }
-
 ```
 
 ## Pruebas unitarias
