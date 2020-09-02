@@ -6,13 +6,13 @@ use \GuzzleHttp\Event\Emitter;
 use \GuzzleHttp\Middleware;
 use \GuzzleHttp\HandlerStack as handlerStack;
 
-use \tl\mx\Client\ApiException;
+use Signer\Manager\ApiException;
+use Signer\Manager\Interceptor\MiddlewareEvents;
+use Signer\Manager\Interceptor\KeyHandler;
+
 use \tl\mx\Client\Configuration;
 use \tl\mx\Client\Model\Error;
-use \tl\mx\Client\Interceptor\KeyHandler;
-use \tl\mx\Client\Interceptor\MiddlewareEvents;
 use \tl\mx\Client\Api\ConsultaApi as Instance;
-
 use \tl\mx\Client\Model\Busqueda;
 use \tl\mx\Client\Model\PersonaConsulta;
 use \tl\mx\Client\Model\DomicilioConsulta;
@@ -84,6 +84,8 @@ class ApiTest extends \PHPUnit_Framework_TestCase
                 echo ' code. Exception when calling ApiTest->consultarTrayectorias: ', $e->getResponseBody(), PHP_EOL;
             }
         }
+        
+
     }
 
 }
